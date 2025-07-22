@@ -1,5 +1,8 @@
 # 2D Equation Plotter & Animator
 
+[![Watch the demo](video_thumbnail.png)](git_video.mp4)
+*Click the image above to watch a demo video of the 2D Equation Plotter & Animator.*
+
 ## Overview
 This Python application allows you to visualize and animate the plotting of 2D mathematical equations of the form `y = f(x)`. You can input any valid mathematical expression in terms of `x`, specify the range for `x`, and watch as the curve is drawn incrementally. The animation focuses on the tip of the curve, and you can export the animation as a video (MP4 or GIF). The interface is minimal, showing only the animated line, a moving tip marker, and the current (x, y) value at the tip.
 
