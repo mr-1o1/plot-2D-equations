@@ -54,6 +54,10 @@ if func is not None:
         tip_marker, = ax.plot([], [], 'ro', markersize=6)
         tip_text = ax.text(0, 0, '', color='white', fontsize=10, ha='left', va='bottom', fontweight='bold')
 
+        # Prepare background axes (as lines, not spines)
+        x_axis_bg, = ax.plot([], [], color='gray', linewidth=1, alpha=0.3, zorder=0)
+        y_axis_bg, = ax.plot([], [], color='gray', linewidth=1, alpha=0.3, zorder=0)
+
         # Hide axes, ticks, and spines
         ax.set_axis_off()
         for spine in ax.spines.values():
@@ -75,7 +79,9 @@ if func is not None:
             line.set_data(empty, empty)
             tip_marker.set_data(empty, empty)
             tip_text.set_text('')
-            return line, tip_marker, tip_text
+            x_axis_bg.set_data(empty, empty)
+            y_axis_bg.set_data(empty, empty)
+            return line, tip_marker, tip_text, x_axis_bg, y_axis_bg
 
         def update(frame):
             if frame == 0:
@@ -83,7 +89,9 @@ if func is not None:
                 line.set_data(empty, empty)
                 tip_marker.set_data(empty, empty)
                 tip_text.set_text('')
-                return line, tip_marker, tip_text
+                x_axis_bg.set_data(empty, empty)
+                y_axis_bg.set_data(empty, empty)
+                return line, tip_marker, tip_text, x_axis_bg, y_axis_bg
             x_data = np.array(x_vals[:frame])
             y_data = np.array(y_vals[:frame])
             line.set_data(x_data, y_data)
@@ -126,7 +134,10 @@ if func is not None:
                     y_lower -= 1
                     y_upper += 1
             ax.set_ylim(y_lower, y_upper)
-            return line, tip_marker, tip_text
+            # Draw background axes (cross at y=0 and x=0)
+            x_axis_bg.set_data([x_left, x_right], [0, 0])
+            y_axis_bg.set_data([0, 0], [y_lower, y_upper])
+            return line, tip_marker, tip_text, x_axis_bg, y_axis_bg
 
         ani = FuncAnimation(fig, update, frames=len(x_vals)+1, init_func=init, blit=False, interval=speed, repeat=False)
         plt.show()
