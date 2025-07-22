@@ -1,6 +1,7 @@
 import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 # Prompt user for equation
 print("Enter a 2D equation in terms of x (e.g., sin(x) + x**2):")
@@ -36,13 +37,27 @@ if func is not None:
         print("First 5 x values:", x_vals[:5])
         print("First 5 y values:", y_vals[:5])
 
-        # Step 3: Static plot
+        # Step 4: Animate the plot
         plt.style.use('dark_background')
         fig, ax = plt.subplots()
-        ax.plot(x_vals, y_vals, color='white')
+        line, = ax.plot([], [], color='white')
+        ax.set_xlim(x_min, x_max)
+        # Set y-limits with a margin
+        y_margin = (np.max(y_vals) - np.min(y_vals)) * 0.1 if np.max(y_vals) != np.min(y_vals) else 1
+        ax.set_ylim(np.min(y_vals) - y_margin, np.max(y_vals) + y_margin)
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.set_title(f'y = {equation_str}')
+
+        def init():
+            line.set_data([], [])
+            return line,
+
+        def update(frame):
+            line.set_data(x_vals[:frame], y_vals[:frame])
+            return line,
+
+        ani = FuncAnimation(fig, update, frames=len(x_vals)+1, init_func=init, blit=True, interval=20, repeat=False)
         plt.show()
     except Exception as e:
-        print(f"Error evaluating function: {e}") 
+        print(f"Error evaluating function: {e}")
