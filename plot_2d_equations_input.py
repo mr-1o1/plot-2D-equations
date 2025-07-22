@@ -55,8 +55,12 @@ if func is not None:
         tip_text = ax.text(0, 0, '', color='white', fontsize=10, ha='left', va='bottom', fontweight='bold')
 
         # Prepare background axes (as lines, not spines)
-        x_axis_bg, = ax.plot([], [], color='gray', linewidth=1, alpha=0.3, zorder=0)
-        y_axis_bg, = ax.plot([], [], color='gray', linewidth=1, alpha=0.3, zorder=0)
+        x_axis_bg, = ax.plot([], [], color='gray', linewidth=2, alpha=0.5, zorder=0)  # bolder x=0
+        y_axis_bg, = ax.plot([], [], color='gray', linewidth=2, alpha=0.5, zorder=0)  # bolder y=0
+        grid_lines = []
+        for _ in range(20):  # up to 10 grid lines each direction
+            grid_lines.append(ax.plot([], [], color='gray', linewidth=0.5, alpha=0.2, zorder=0)[0])  # vertical
+            grid_lines.append(ax.plot([], [], color='gray', linewidth=0.5, alpha=0.2, zorder=0)[0])  # horizontal
 
         # Hide axes, ticks, and spines
         ax.set_axis_off()
@@ -81,7 +85,9 @@ if func is not None:
             tip_text.set_text('')
             x_axis_bg.set_data(empty, empty)
             y_axis_bg.set_data(empty, empty)
-            return line, tip_marker, tip_text, x_axis_bg, y_axis_bg
+            for gl in grid_lines:
+                gl.set_data(empty, empty)
+            return (line, tip_marker, tip_text, x_axis_bg, y_axis_bg, *grid_lines)
 
         def update(frame):
             if frame == 0:
@@ -91,7 +97,9 @@ if func is not None:
                 tip_text.set_text('')
                 x_axis_bg.set_data(empty, empty)
                 y_axis_bg.set_data(empty, empty)
-                return line, tip_marker, tip_text, x_axis_bg, y_axis_bg
+                for gl in grid_lines:
+                    gl.set_data(empty, empty)
+                return (line, tip_marker, tip_text, x_axis_bg, y_axis_bg, *grid_lines)
             x_data = np.array(x_vals[:frame])
             y_data = np.array(y_vals[:frame])
             line.set_data(x_data, y_data)
@@ -137,7 +145,16 @@ if func is not None:
             # Draw background axes (cross at y=0 and x=0)
             x_axis_bg.set_data([x_left, x_right], [0, 0])
             y_axis_bg.set_data([0, 0], [y_lower, y_upper])
-            return line, tip_marker, tip_text, x_axis_bg, y_axis_bg
+            # Draw grid lines
+            n_grid = 10
+            x_grid = np.linspace(x_left, x_right, n_grid)
+            y_grid = np.linspace(y_lower, y_upper, n_grid)
+            for i in range(n_grid):
+                # vertical grid
+                grid_lines[2*i].set_data([x_grid[i], x_grid[i]], [y_lower, y_upper])
+                # horizontal grid
+                grid_lines[2*i+1].set_data([x_left, x_right], [y_grid[i], y_grid[i]])
+            return (line, tip_marker, tip_text, x_axis_bg, y_axis_bg, *grid_lines)
 
         ani = FuncAnimation(fig, update, frames=len(x_vals)+1, init_func=init, blit=False, interval=speed, repeat=False)
         plt.show()
