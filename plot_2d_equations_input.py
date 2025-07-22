@@ -35,5 +35,14 @@ if func is not None:
             y_vals = np.full_like(x_vals, y_vals, dtype=float)
         print("First 5 x values:", x_vals[:5])
         print("First 5 y values:", y_vals[:5])
+
+        # Step 3: Static plot
+        plt.style.use('dark_background')
+        fig, ax = plt.subplots()
+        ax.plot(x_vals, y_vals, color='white')
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_title(f'y = {equation_str}')
+        plt.show()
     except Exception as e:
         print(f"Error evaluating function: {e}") 
