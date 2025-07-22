@@ -4,6 +4,16 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import sys
 
+# Prompt user for animation speed
+try:
+    speed = int(input("Enter animation speed (milliseconds per frame, default 20): ") or 20)
+    if speed <= 0:
+        print("Speed must be positive. Using default 20.")
+        speed = 20
+except Exception:
+    print("Invalid input. Using default speed 20.")
+    speed = 20
+
 # Prompt user for equation
 print("Enter the equation for y in terms of x (e.g., sin(x) + x**2):")
 equation_str = input("y = ")
@@ -118,7 +128,7 @@ if func is not None:
             ax.set_ylim(y_lower, y_upper)
             return line, tip_marker, tip_text
 
-        ani = FuncAnimation(fig, update, frames=len(x_vals)+1, init_func=init, blit=True, interval=20, repeat=False)
+        ani = FuncAnimation(fig, update, frames=len(x_vals)+1, init_func=init, blit=True, interval=speed, repeat=False)
         plt.show()
 
         # Prompt to save animation
