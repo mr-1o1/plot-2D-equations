@@ -2,6 +2,7 @@ import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import sys
 
 # Prompt user for equation
 print("Enter the equation for y in terms of x (e.g., sin(x) + x**2):")
@@ -37,21 +38,24 @@ if func is not None:
         print("First 5 x values:", x_vals[:5])
         print("First 5 y values:", y_vals[:5])
 
-        # Improved animation with minimum window size and tip at 60% of x-axis
         plt.style.use('dark_background')
         fig, ax = plt.subplots()
         line, = ax.plot([], [], color='white', linewidth=2)
         tip_marker, = ax.plot([], [], 'ro', markersize=6)
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-        ax.set_title(f'y = {equation_str}')
+        tip_text = ax.text(0, 0, '', color='white', fontsize=10, ha='left', va='bottom', fontweight='bold')
+
+        # Hide axes, ticks, and spines
+        ax.set_axis_off()
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
         # Minimum window sizes
         min_x_window = (x_max - x_min) * 0.2 if (x_max - x_min) > 0 else 1
         y_range_total = np.max(y_vals) - np.min(y_vals)
         min_y_window = y_range_total * 0.2 if y_range_total > 0 else 1
         if min_y_window < 1e-6:
-            min_y_window = 1  # Sensible default for constant or nearly constant functions
+            min_y_window = 1
 
         is_constant = np.allclose(y_vals, y_vals[0])
         constant_y = y_vals[0] if is_constant else None
@@ -60,27 +64,25 @@ if func is not None:
             empty = np.array([])
             line.set_data(empty, empty)
             tip_marker.set_data(empty, empty)
-            print(f"[init] line: {type(empty)}, shape: {empty.shape}")
-            return line, tip_marker
+            tip_text.set_text('')
+            return line, tip_marker, tip_text
 
         def update(frame):
             if frame == 0:
                 empty = np.array([])
                 line.set_data(empty, empty)
                 tip_marker.set_data(empty, empty)
-                print(f"[update frame 0] line: {type(empty)}, shape: {empty.shape}")
-                return line, tip_marker
+                tip_text.set_text('')
+                return line, tip_marker, tip_text
             x_data = np.array(x_vals[:frame])
             y_data = np.array(y_vals[:frame])
             line.set_data(x_data, y_data)
-            print(f"[update frame {frame}] line: {type(x_data)}, shape: {x_data.shape}")
-            if frame > 0:
-                tip_marker.set_data(np.array([x_vals[frame-1]]), np.array([y_vals[frame-1]]))
-                print(f"[update frame {frame}] tip: {type(np.array([x_vals[frame-1]]))}, shape: {np.array([x_vals[frame-1]]).shape}")
-            else:
-                tip_marker.set_data(np.array([]), np.array([]))
+            tip_marker.set_data(np.array([x_vals[frame-1]]), np.array([y_vals[frame-1]]))
             tip_x = x_vals[frame-1]
             tip_y = y_vals[frame-1]
+            # Show (x, y) at the tip
+            tip_text.set_position((tip_x, tip_y))
+            tip_text.set_text(f'({tip_x:.2f}, {tip_y:.2f})')
             # X window
             x_window = max(min_x_window, (x_max - x_min) * 0.2)
             x_left = tip_x - x_window * 0.6
@@ -114,11 +116,29 @@ if func is not None:
                     y_lower -= 1
                     y_upper += 1
             ax.set_ylim(y_lower, y_upper)
-            # Debug prints for axis limits
-            print(f"Frame {frame}: xlim=({x_left:.2f}, {x_right:.2f}), ylim=({y_lower:.2f}, {y_upper:.2f})")
-            return line, tip_marker
+            return line, tip_marker, tip_text
 
         ani = FuncAnimation(fig, update, frames=len(x_vals)+1, init_func=init, blit=True, interval=20, repeat=False)
         plt.show()
+
+        # Prompt to save animation
+        save = input("Do you want to save the animation as a video? (y/n): ").strip().lower()
+        if save == 'y':
+            filename = input("Enter filename (without extension): ").strip()
+            fmt = input("Enter format (mp4/gif): ").strip().lower()
+            if fmt == 'mp4':
+                try:
+                    ani.save(f"{filename}.mp4", writer='ffmpeg', fps=50)
+                    print(f"Animation saved as {filename}.mp4")
+                except Exception as e:
+                    print(f"Error saving MP4: {e}\nMake sure ffmpeg is installed.")
+            elif fmt == 'gif':
+                try:
+                    ani.save(f"{filename}.gif", writer='pillow', fps=50)
+                    print(f"Animation saved as {filename}.gif")
+                except Exception as e:
+                    print(f"Error saving GIF: {e}\nMake sure pillow is installed.")
+            else:
+                print("Unsupported format. Please use 'mp4' or 'gif'.")
     except Exception as e:
         print(f"Error evaluating function: {e}")
