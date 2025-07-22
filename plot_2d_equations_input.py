@@ -128,7 +128,7 @@ if func is not None:
             ax.set_ylim(y_lower, y_upper)
             return line, tip_marker, tip_text
 
-        ani = FuncAnimation(fig, update, frames=len(x_vals)+1, init_func=init, blit=True, interval=speed, repeat=False)
+        ani = FuncAnimation(fig, update, frames=len(x_vals)+1, init_func=init, blit=False, interval=speed, repeat=False)
         plt.show()
 
         # Prompt to save animation
