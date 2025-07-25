@@ -3,7 +3,7 @@ import sympy as sp  # For parsing and handling equations
 import numpy as np  # For numerical evaluation
 
 # This script creates a static 2D coordinate system and animates the drawing of a function graph using Manim's Axes.
-# Step 6: Add a moving tip marker that follows the graph as it is drawn.
+# Step 7: Display dynamic coordinates at the tip marker as it moves.
 # To render this scene, run:
 #   manim -pql manim_plot_2d_equation.py StaticAxesScene
 
@@ -64,6 +64,16 @@ class StaticAxesScene(Scene):
         tip_marker = Dot(axes.c2p(start_x, start_y), color=RED, radius=0.08)
         self.add(tip_marker)
 
+        # --- Step 7: Display dynamic coordinates at the tip ---
+        # Create a label to show the coordinates, initially at the start
+        coord_label = always_redraw(
+            lambda: MathTex(
+                f"({tip_marker.get_center()[0]:.2f}, {tip_marker.get_center()[1]:.2f})",
+                color=WHITE
+            ).next_to(tip_marker, UP + RIGHT, buff=0.2)
+        )
+        self.add(coord_label)
+
         # Function to update the marker's position as the graph is drawn
         def update_marker(mob, alpha):
             # alpha goes from 0 to 1 during the animation
@@ -76,7 +86,7 @@ class StaticAxesScene(Scene):
         self.play(
             Create(graph),
             UpdateFromAlphaFunc(tip_marker, update_marker),
-            run_time=10
+            run_time=3
         )
         self.wait(0.5)
 
