@@ -2,8 +2,8 @@ from manim import *
 import sympy as sp  # For parsing and handling equations
 import numpy as np  # For numerical evaluation
 
-# This script creates a static 2D coordinate system and plots a function as a static graph using Manim's Axes.
-# Step 4: Plot the function as a static graph.
+# This script creates a static 2D coordinate system and animates the drawing of a function graph using Manim's Axes.
+# Step 5: Animate the drawing of the graph.
 # To render this scene, run:
 #   manim -pql manim_plot_2d_equation.py StaticAxesScene
 
@@ -57,9 +57,13 @@ class StaticAxesScene(Scene):
             color=YELLOW,
             x_range=[-5, 5],  # Plot over the same x-range as axes
         )
-        # Add the function graph to the scene
-        self.add(graph)
-        # Optionally, add a label for the function
+
+        # --- Step 5: Animate the drawing of the graph ---
+        # Add the graph to the scene with an animation
+        self.play(Create(graph), run_time=3)  # Animate drawing the graph over 3 seconds
+        self.wait(0.5)  # Pause briefly after drawing
+
+        # Optionally, add a label for the function after the animation
         # The label must be in LaTeX math mode (wrapped in $...$)
         func_label = axes.get_graph_label(graph, label=Tex(r"$y = \sin(x) + x^2$"), x_val=2)
         self.add(func_label) 
