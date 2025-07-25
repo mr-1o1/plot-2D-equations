@@ -3,7 +3,7 @@ import sympy as sp  # For parsing and handling equations
 import numpy as np  # For numerical evaluation
 
 # This script creates a static 2D coordinate system and animates the drawing of a function graph using Manim's Axes.
-# Step 5: Animate the drawing of the graph.
+# Step 6: Add a moving tip marker that follows the graph as it is drawn.
 # To render this scene, run:
 #   manim -pql manim_plot_2d_equation.py StaticAxesScene
 
@@ -44,7 +44,6 @@ class StaticAxesScene(Scene):
             return  # Stop if parsing fails
 
         # --- Step 4: Plot the function as a static graph ---
-        # Define the function to plot (must accept a float and return a float)
         def manim_func(x_val):
             try:
                 return func(x_val)
@@ -58,12 +57,29 @@ class StaticAxesScene(Scene):
             x_range=[-5, 5],  # Plot over the same x-range as axes
         )
 
-        # --- Step 5: Animate the drawing of the graph ---
-        # Add the graph to the scene with an animation
-        self.play(Create(graph), run_time=3)  # Animate drawing the graph over 3 seconds
-        self.wait(0.5)  # Pause briefly after drawing
+        # --- Step 6: Add a moving tip marker ---
+        # Create a Dot at the start of the graph
+        start_x = -5
+        start_y = manim_func(start_x)
+        tip_marker = Dot(axes.c2p(start_x, start_y), color=RED, radius=0.08)
+        self.add(tip_marker)
+
+        # Function to update the marker's position as the graph is drawn
+        def update_marker(mob, alpha):
+            # alpha goes from 0 to 1 during the animation
+            # Get the corresponding x value
+            x_val = start_x + (5 - (-5)) * alpha  # x from -5 to 5
+            y_val = manim_func(x_val)
+            mob.move_to(axes.c2p(x_val, y_val))
+
+        # Animate the graph and the marker together
+        self.play(
+            Create(graph),
+            UpdateFromAlphaFunc(tip_marker, update_marker),
+            run_time=10
+        )
+        self.wait(0.5)
 
         # Optionally, add a label for the function after the animation
-        # The label must be in LaTeX math mode (wrapped in $...$)
         func_label = axes.get_graph_label(graph, label=Tex(r"$y = \sin(x) + x^2$"), x_val=2)
         self.add(func_label) 
